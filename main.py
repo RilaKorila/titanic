@@ -65,33 +65,33 @@ def load_ML_data(feature1, feature2, train_num = 600):
 
 def main():
     # # If username is already initialized, don't do anything
-    # if 'username' not in st.session_state or st.session_state.username == 'default':
-    #     st.session_state.username = 'default'
-    #     input_name()
-    #     st.stop()
+    if 'username' not in st.session_state or st.session_state.username == 'default':
+        st.session_state.username = 'default'
+        input_name()
+        st.stop()
     if 'username' not in st.session_state:
         st.session_state.username = 'test'
             
     if 'page' not in st.session_state:
-        # st.session_state.page = 'input_name' # usernameつける時こっち
-        st.session_state.page = 'deal_data'
+        st.session_state.page = 'input_name' # usernameつける時こっち
+        # st.session_state.page = 'deal_data'
 
 
     # --- page選択ラジオボタン
     st.sidebar.markdown('## ページを選択')
-    page = st.sidebar.radio('', ('データ加工', 'データ可視化','決定木'))
-    if page == 'データ加工':
+    page = st.sidebar.radio('', ('データ表示', 'データ可視化'))
+    if page == 'データ表示':
         st.session_state.page = 'deal_data'
         logging.info(',%s,ページ選択,%s', st.session_state.username, page)
     elif page == 'データ可視化':
         st.session_state.page = 'vis'
-        logging.info(',%s,ページ選択,%s', st.session_state.username, page)
+        # logging.info(',%s,ページ選択,%s', st.session_state.username, page)
     # elif page == 'テストデータ':
     #     st.session_state.page = 'test'
     #     logging.info(',%s,ページ選択,%s', st.session_state.username, page)
-    elif page == '決定木':
-        st.session_state.page = 'decision_tree'
-        logging.info(',%s,ページ選択,%s', st.session_state.username, page)
+    # elif page == '決定木':
+    #     st.session_state.page = 'decision_tree'
+    #     logging.info(',%s,ページ選択,%s', st.session_state.username, page)
 
     # --- page振り分け
     if st.session_state.page == 'input_name':
@@ -110,7 +110,7 @@ def input_name():
     # Input username
     with st.form("my_form"):
         inputname = st.text_input('username', 'ユーザ名')
-        submitted = st.form_submit_button("Submit")
+        submitted = st.form_submit_button("Go!!")
         if submitted: # Submit buttonn 押された時に
             if inputname == 'ユーザ名' or input_name == '': # nameが不適当なら
                 submitted = False  # Submit 取り消し
@@ -125,9 +125,7 @@ def deal_data():
     st.title("データの表示")
 
     full_df = load_full_data()
-    ba = st.button("Let's try!!")
-    if ba:
-        st.balloons()
+    
 
     # highlight の ON/OFF
     high_light = st.checkbox('最大値をハイライトする')
@@ -136,6 +134,10 @@ def deal_data():
         st.dataframe(full_df.style.highlight_max(axis=0))
     else:
         st.dataframe(full_df)
+
+    ba = st.button("Let's try!!")
+    if ba:
+        st.balloons()
 
 # ---------------- テストデータ　プロット ----------------------------------
 def test():
@@ -255,6 +257,7 @@ def vis():
 
     # 棒グラフ
     if graph == "棒グラフ":
+        logging.info(',%s,データ可視化,%s', st.session_state.username, graph)
         st.markdown('## 生存率と他の変数の関係を調べてみる')
         with st.form("棒グラフ"):
             # 変数選択
@@ -279,6 +282,7 @@ def vis():
 
     # 棒グラフ: Hue あり
     elif graph == "棒グラフ(男女別)":
+        logging.info(',%s,データ可視化,%s', st.session_state.username, graph)
         label = ['Pclass', 'Age', 'SibSp', 'Parch', 'Fare', 'Embarked']
         st.markdown('## 生存率と他の変数の関係を調べてみる')
         st.write('性別ごとの分類あり')
@@ -303,6 +307,7 @@ def vis():
     
     # 箱ひげ図
     elif graph == '箱ひげ図':
+        logging.info(',%s,データ可視化,%s', st.session_state.username, graph)
         st.markdown('## 各変数の分布を箱ひげ図を用いて調べる')
         with st.form("箱ひげ図"):
             # 変数選択
@@ -326,6 +331,7 @@ def vis():
     
     # 散布図
     elif graph == '散布図':
+        logging.info(',%s,データ可視化,%s', st.session_state.username, graph)
         label = full_data.columns
         st.markdown('## 各変数の分布を散布図を用いて調べる')
         with st.form("散布図"):
@@ -359,6 +365,7 @@ def vis():
     
     # 散布図行列
     if graph == '全ての散布図':
+        logging.info(',%s,データ可視化,%s', st.session_state.username, graph)
         label = full_data.columns
 
         st.markdown('## 全ての変数を散布図に表示する')
