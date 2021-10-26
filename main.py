@@ -278,16 +278,28 @@ def vis():
         st.markdown('## 生存率 × 他の変数')
 
         with st.form("ヒストグラム(曲線)"):
-            # 変数選択
-            hist_val = st.selectbox('変数を選択',label)
-            logging.info(',%s,ヒストグラム(曲線),%s', st.session_state.username, hist_val)
+            left, right = st.beta_columns(2)
+
+            with left: # 変数選択 
+                hist_val = st.selectbox('変数を選択',label)
+                logging.info(',%s,ヒストグラム(曲線),%s', st.session_state.username, hist_val)
+
+            with right: # 縦軸のタイプを選択
+                y_type = st.radio("縦軸のタイプ", ("人数", "割合(全体/該当者)"))
 
             # Submitボタン
             plot_button = st.form_submit_button('グラフ表示')
             
             if plot_button:
-                g = sns.displot(data=full_data, x=hist_val, hue="Survived",fill = True, kind="kde")
-                g.set_axis_labels(hist_val, "survival probability")
+                # kde: 縦軸が割合(該当者 / 全体)
+                # hist: 人数
+                if y_type == "人数":
+                    g = sns.displot(data=full_data, x=hist_val, hue="Survived",fill = True, kind="hist")
+                    g.set_axis_labels(hist_val, "survival count")
+                else:
+                    g = sns.displot(data=full_data, x=hist_val, hue="Survived",fill = True, kind="kde")
+                    g.set_axis_labels(hist_val, "survival probability")
+
                 st.pyplot(g)
 
         # コードの表示
@@ -303,6 +315,7 @@ def vis():
         logging.info(',%s,データ可視化,%s', st.session_state.username, graph)
         st.markdown('## 散布図 で 分布 を調べる')
         with st.form("散布図"):
+            # (Todo) バージョンアップ: 今betaじゃないはず
             left, right = st.beta_columns(2)
 
             with left: # 変数選択 
