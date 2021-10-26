@@ -208,7 +208,6 @@ def decision_tree():
     tree = data.my_dtree(feature1, feature2)
     st.image(tree, caption=feature1+'_'+feature2)
 
-
 # ---------------- 可視化 :  各グラフを選択する ----------------------------------
 def vis():
     st.title("タイタニック データ")
