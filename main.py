@@ -1,11 +1,8 @@
 import streamlit as st
 import pandas as pd
 import logging
-from sklearn.metrics import accuracy_score
 import seaborn as sns
-from sklearn.tree import DecisionTreeClassifier
 import data
-import time
 
 LIVE = 1
 DEAD = 0
@@ -68,13 +65,6 @@ def main():
         logging.info(',%s,ページ選択,%s', st.session_state.username, page)
     elif page == 'グラフを表示':
         st.session_state.page = 'vis'
-        # logging.info(',%s,ページ選択,%s', st.session_state.username, page)
-    # elif page == 'テストデータ':
-    #     st.session_state.page = 'test'
-    #     logging.info(',%s,ページ選択,%s', st.session_state.username, page)
-    # elif page == '決定木':
-    #     st.session_state.page = 'decision_tree'
-    #     logging.info(',%s,ページ選択,%s', st.session_state.username, page)
 
     # --- page振り分け
     if st.session_state.page == 'input_name':
@@ -82,11 +72,7 @@ def main():
     elif st.session_state.page == 'deal_data':
         deal_data()
     elif st.session_state.page == 'vis':
-        vis()
-    elif st.session_state.page == 'test':
-        test()  
-    elif st.session_state.page == 'decision_tree':
-        decision_tree()        
+        vis()      
 
 # ---------------- usernameの登録 ----------------------------------
 def input_name():
@@ -116,98 +102,6 @@ def deal_data():
     else:
         st.dataframe(full_df)
 
-
-# ---------------- テストデータ　プロット ----------------------------------
-def test():
-    st.title('テストデータ')
-    test_idx = st.number_input("データ番号を入力(0~200)", min_value=0, max_value=200)
-
-    # テストデータを取得
-    full_data = load_full_data()
-    test_num = 200
-    # test_numまでがテストデータ = 分割後もindexが揃う
-    train = full_data[test_num:]
-    # test_num以降が訓練データ
-    test = full_data[:test_num]
-    train.drop('Survived', axis=1) 
-    
-    # テストデータを取得
-    test_df = full_data[test_idx: test_idx+1].drop('Survived', axis=1)
-    # 選択したデータの表示
-    st.dataframe(test_df)
-
-    # 学習
-    # ここでは決定木を用いる
-    clf = DecisionTreeClassifier(random_state=0, max_depth=3)
-    train_X = train.drop('Survived', axis=1)
-    train_y = train.Survived
-    clf = clf.fit(train_X, train_y)
-    # コンピューターの予測結果  # 1が生存、0が死亡
-    pred = clf.predict(test_df)
-
-    pred_btn = st.checkbox('予測結果をみる')
-    if pred_btn:
-        st.write('\n機械学習による予測結果は...')
-        if pred[0] == 1:
-            st.success('生存！！')
-        else:
-            st.success('亡くなってしまうかも...')
-        
-        # その後、正解を見る
-        ans = st.checkbox('正解をみる')
-        if ans:
-            st.write('\n実際は...')
-            if test['Survived'][test_idx] == 1:
-                st.success('生存！！')
-            else:
-                st.success('亡くなってしまった...')
-
-            test[test_idx: test_idx+1]
-
-
-# ---------------- 決定木 : dtreeviz ----------------------------------
-def decision_tree():
-    st.title("生存できるか予測しよう")
-    
-    st.write('予測に使う変数を2つ選ぼう')
-    left, right = st.beta_columns(2)
-    features = ['Pclass', 'Gender', 'Age', 'SibSp', 'Parch', 'Fare','Embarked']
-    with left:
-        feature1 = st.selectbox('予測に使う変数1',features)
-    with right:
-        feature2 = st.selectbox('予測に使う変数2',features)
-
-    logging.info(',%s,決定木変数,%s', st.session_state.username, feature1+'_'+feature2)
-    # 学習スタート
-    started = st.button('学習スタート')
-    if not started: 
-        st.stop()
-    
-    # データの取得
-    train_X, test_X, train_y, test_y = load_ML_data(feature1, feature2, train_num = 600)
-
-    # 木の深さを3に制限
-    clf = DecisionTreeClassifier(random_state=0, max_depth=3)
-    # 学習
-    clf = clf.fit(train_X, train_y)
-
-    # test_Xデータを全部予測する
-    pred = clf.predict(test_X)
-    # 正解率を計算する
-    acc = accuracy_score(pred, test_y)
-
-    st.success('学習終了！！')
-    st.write(f'accuracy: {acc:.5f}')
-
-    #　決定木の表示までにタイムラグがほしい
-    # 待たせられる
-    with st.spinner('Wait for it...'):
-        time.sleep(3.5)
-
-    # 決定木の可視化
-    tree = data.my_dtree(feature1, feature2)
-    st.image(tree, caption=feature1+'_'+feature2)
-
 # ---------------- 可視化 :  各グラフを選択する ----------------------------------
 def vis():
     st.title("タイタニック データ")
@@ -221,7 +115,7 @@ def vis():
     # sidebar でグラフを選択
     graph = st.sidebar.radio(
         'グラフの種類',
-        ('棒グラフ', '棒グラフ(男女別)', 'ヒストグラム(曲線)', '散布図', '全ての散布図')
+        ('棒グラフ', 'ヒストグラム(曲線)', '散布図', '全ての散布図')
     )
 
     # 棒グラフ
@@ -247,35 +141,10 @@ def vis():
             st.sidebar.write(code_txt)
             st.sidebar.markdown('---')
 
-    # 棒グラフ: Hue あり
-    elif graph == "棒グラフ(男女別)":
-        logging.info(',%s,データ可視化,%s', st.session_state.username, graph)
-        # Genderを抜いたラベル
-        label = ['Pclass', 'Age', 'SibSp', 'Parch', 'Fare', 'Embarked']
-        st.markdown('## 生存率 × 他の変数')
-        st.write('性別ごとの分類あり')
-        with st.form("棒グラフ(男女別)"):
-            # 変数選択
-            hist_val = st.selectbox('変数を選択',label)
-            logging.info(',%s,棒グラフ(男女別),%s', st.session_state.username, hist_val)
-
-            # Submitボタン
-            plot_button = st.form_submit_button('グラフ表示')
-            if plot_button:
-                g = sns.catplot(x=hist_val, y='Survived', data=full_data, hue='Gender', kind='bar', ci=None)
-                st.pyplot(g)
-        # コードの表示
-        code = st.sidebar.checkbox('コードを表示')
-        if code:
-            code_txt = "g = sns.catplot(x='" + hist_val + "', y='Survived', hue='Gender', data=full_data, kind='bar',  ci=None)"
-            st.sidebar.markdown('---')
-            st.sidebar.write(code_txt)
-            st.sidebar.markdown('---')
-
     # ヒストグラム(曲線)
     elif graph == "ヒストグラム(曲線)":
         logging.info(',%s,データ可視化,%s', st.session_state.username, graph)
-        st.markdown('## 生存率 × 他の変数')
+        st.markdown('## データの分布を見てみよう')
 
         with st.form("ヒストグラム(曲線)"):
             left, right = st.beta_columns(2)
@@ -285,7 +154,7 @@ def vis():
                 logging.info(',%s,ヒストグラム(曲線),%s', st.session_state.username, hist_val)
 
             with right: # 縦軸のタイプを選択
-                y_type = st.radio("縦軸のタイプ", ("人数", "割合(全体/該当者)"))
+                hue = st.radio("色分け", ("性別", "生死"))
 
             # Submitボタン
             plot_button = st.form_submit_button('グラフ表示')
@@ -293,13 +162,12 @@ def vis():
             if plot_button:
                 # kde: 縦軸が割合(該当者 / 全体)
                 # hist: 人数
-                if y_type == "人数":
-                    g = sns.displot(data=full_data, x=hist_val, hue="Survived",fill = True, kind="hist")
-                    g.set_axis_labels(hist_val, "survival count")
+                if hue == "性別":
+                    g = sns.displot(data=full_data, x=hist_val, hue="Gender",fill = True, kind="kde")
                 else:
                     g = sns.displot(data=full_data, x=hist_val, hue="Survived",fill = True, kind="kde")
-                    g.set_axis_labels(hist_val, "survival probability")
 
+                g.set_axis_labels(hist_val, "survival probability")
                 st.pyplot(g)
 
         # コードの表示
