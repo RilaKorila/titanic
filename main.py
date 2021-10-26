@@ -8,6 +8,8 @@ from sklearn.tree import DecisionTreeClassifier
 import data
 import time
 
+LIVE = 1
+DEAD = 0
 
 st.set_page_config(
     # page_title="PE Score Analysis App",
@@ -79,11 +81,11 @@ def main():
 
     # --- page選択ラジオボタン
     st.sidebar.markdown('## ページを選択')
-    page = st.sidebar.radio('', ('データ表示', 'データ可視化'))
+    page = st.sidebar.radio('', ('データ表示', 'グラフを表示'))
     if page == 'データ表示':
         st.session_state.page = 'deal_data'
         logging.info(',%s,ページ選択,%s', st.session_state.username, page)
-    elif page == 'データ可視化':
+    elif page == 'グラフを表示':
         st.session_state.page = 'vis'
         # logging.info(',%s,ページ選択,%s', st.session_state.username, page)
     # elif page == 'テストデータ':
@@ -135,9 +137,6 @@ def deal_data():
     else:
         st.dataframe(full_df)
 
-    ba = st.button("Let's try!!")
-    if ba:
-        st.balloons()
 
 # ---------------- テストデータ　プロット ----------------------------------
 def test():
@@ -159,7 +158,7 @@ def test():
     st.dataframe(test_df)
 
     # 学習
-    # ここでは決定木を用います
+    # ここでは決定木を用いる
     clf = DecisionTreeClassifier(random_state=0, max_depth=3)
     train_X = train.drop('Survived', axis=1)
     train_y = train.Survived
@@ -244,21 +243,13 @@ def vis():
     # sidebar でグラフを選択
     graph = st.sidebar.radio(
         'グラフの種類',
-        ('棒グラフ', '棒グラフ(男女別)', '箱ひげ図', '散布図', '全ての散布図')
+        ('棒グラフ', '棒グラフ(男女別)', '分布','箱ひげ図', '散布図', '全ての散布図')
     )
-
-    # 棒グラフ
-    # if graph == '棒グラフ':
-    #     bar_val = st.selectbox('変数を選択',label)
-    #     st.write('生存率と他の変数の関係を調べてみましょう')
-    #     fig = px.bar(full_data, x=bar_val, y='Survived')
-    #     st.plotly_chart(fig, use_container_width=True)
-
 
     # 棒グラフ
     if graph == "棒グラフ":
         logging.info(',%s,データ可視化,%s', st.session_state.username, graph)
-        st.markdown('## 生存率と他の変数の関係を調べてみる')
+        st.markdown('## 生存率 × 他の変数')
         with st.form("棒グラフ"):
             # 変数選択
             hist_val = st.selectbox('変数を選択',label)
@@ -284,7 +275,7 @@ def vis():
     elif graph == "棒グラフ(男女別)":
         logging.info(',%s,データ可視化,%s', st.session_state.username, graph)
         label = ['Pclass', 'Age', 'SibSp', 'Parch', 'Fare', 'Embarked']
-        st.markdown('## 生存率と他の変数の関係を調べてみる')
+        st.markdown('## 生存率 × 他の変数')
         st.write('性別ごとの分類あり')
         with st.form("棒グラフ(男女別)"):
             # 変数選択
@@ -295,7 +286,6 @@ def vis():
             plot_button = st.form_submit_button('グラフ表示')
             if plot_button:
                 g = sns.catplot(x=hist_val, y='Survived', data=full_data, hue='Gender', kind='bar', ci=None)
-                # g = g.set_ylabels("survival probability")
                 st.pyplot(g)
         # コードの表示
         code = st.sidebar.checkbox('コードを表示')
@@ -304,11 +294,38 @@ def vis():
             st.sidebar.markdown('---')
             st.sidebar.write(code_txt)
             st.sidebar.markdown('---')
+
+    # 分布
+    elif graph == "分布":
+        logging.info(',%s,データ可視化,%s', st.session_state.username, graph)
+        label = ['Pclass', 'Age', 'SibSp', 'Parch', 'Fare', 'Embarked']
+        st.markdown('## 生存率 × 他の変数')
+
+        with st.form("分布"):
+            # 変数選択
+            hist_val = st.selectbox('変数を選択',label)
+            logging.info(',%s,分布,%s', st.session_state.username, hist_val)
+
+            # Submitボタン
+            plot_button = st.form_submit_button('グラフ表示')
+            
+            if plot_button:
+                g = sns.displot(data=full_data, x=hist_val, hue="Survived",fill = True, kind="kde")
+                g.set_axis_labels(hist_val, "survival probability")
+                st.pyplot(g)
+
+        # コードの表示
+        code = st.sidebar.checkbox('コードを表示')
+        if code:
+            code_txt = "g = sns.displot(data=full_data, x='" + hist_val + "', hue='Survived',fill = True, kind='kde')"
+            st.sidebar.markdown('---')
+            st.sidebar.write(code_txt)
+            st.sidebar.markdown('---')
     
     # 箱ひげ図
     elif graph == '箱ひげ図':
         logging.info(',%s,データ可視化,%s', st.session_state.username, graph)
-        st.markdown('## 各変数の分布を箱ひげ図を用いて調べる')
+        st.markdown('## 箱ひげ図 で 分布 を調べる')
         with st.form("箱ひげ図"):
             # 変数選択
             box_val_y = st.selectbox('箱ひげ図にする変数を選択',label)
@@ -333,7 +350,7 @@ def vis():
     elif graph == '散布図':
         logging.info(',%s,データ可視化,%s', st.session_state.username, graph)
         label = full_data.columns
-        st.markdown('## 各変数の分布を散布図を用いて調べる')
+        st.markdown('## 散布図 で 分布 を調べる')
         with st.form("散布図"):
             left, right = st.beta_columns(2)
 
@@ -368,11 +385,10 @@ def vis():
         logging.info(',%s,データ可視化,%s', st.session_state.username, graph)
         label = full_data.columns
 
-        st.markdown('## 全ての変数を散布図に表示する')
+        st.markdown('## 全ての変数 を 散布図 に表示する')
         st.markdown('このグラフの見方は、ページの一番下にある「グラフの見方」ボタン参照')
 
         with st.form("散布図行列"):
-            # st.warning('このグラフを表示するのには、時間がかかります！！')
             # Submitボタン
             plot_button = st.form_submit_button('グラフ表示')
             if plot_button:
