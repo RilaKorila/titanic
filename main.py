@@ -1,5 +1,4 @@
 import streamlit as st
-import plotly.express as px
 import pandas as pd
 import logging
 from sklearn.metrics import accuracy_score
@@ -12,8 +11,7 @@ LIVE = 1
 DEAD = 0
 
 st.set_page_config(
-    # page_title="PE Score Analysis App",
-    # page_icon="🧊",
+    page_title="Titanic Analysis App",
     layout="wide",
     initial_sidebar_state="collapsed",
     )
@@ -35,25 +33,9 @@ def load_num_data():
     data = data.drop(rows, axis=1)
     return data
 
-# @st.cache 
-# def load_filtered_data(data, genre_filter):
-#     # 数値でフィルター(何点以上)
-#     # filtered_data = data[data['num_rooms'].between(rooms_filter[0], rooms_filter[1])]
-#     grade_filter = []
-#     gender_filter = []
-#     for elem in genre_filter:
-#         grade_filter.append(str(elem[0:2]))
-#         gender_filter.append(str(elem[2]))
-
-#     filtered_data = data[data['学年'].isin(grade_filter)]
-#     filtered_data = filtered_data[filtered_data['性別'].isin(gender_filter)]
-
-#     return filtered_data
-
 @st.cache
 def load_ML_data(feature1, feature2, train_num = 600):
     df = load_full_data()
-    # X = df.drop('Survived', axis=1)  # XはSurvivedの列以外の値
     X = df[[feature1, feature2]]
     y = df.Survived  # yはSurvivedの列の値
 
@@ -66,7 +48,7 @@ def load_ML_data(feature1, feature2, train_num = 600):
 
 
 def main():
-    # # If username is already initialized, don't do anything
+    # If username is already initialized, don't do anything
     if 'username' not in st.session_state or st.session_state.username == 'default':
         st.session_state.username = 'default'
         input_name()
@@ -76,7 +58,6 @@ def main():
             
     if 'page' not in st.session_state:
         st.session_state.page = 'input_name' # usernameつける時こっち
-        # st.session_state.page = 'deal_data'
 
 
     # --- page選択ラジオボタン
@@ -125,9 +106,7 @@ def input_name():
 # ---------------- 訓練データの加工 ----------------------------------
 def deal_data():
     st.title("データの表示")
-
     full_df = load_full_data()
-    
 
     # highlight の ON/OFF
     high_light = st.checkbox('最大値をハイライトする')
@@ -243,7 +222,7 @@ def vis():
     # sidebar でグラフを選択
     graph = st.sidebar.radio(
         'グラフの種類',
-        ('棒グラフ', '棒グラフ(男女別)', '分布','箱ひげ図', '散布図', '全ての散布図')
+        ('棒グラフ', '棒グラフ(男女別)', '分布', '散布図', '全ての散布図')
     )
 
     # 棒グラフ
@@ -255,13 +234,11 @@ def vis():
             hist_val = st.selectbox('変数を選択',label)
             logging.info(',%s,棒グラフ,%s', st.session_state.username, hist_val)
 
-
             # Submitボタン
             plot_button = st.form_submit_button('グラフ表示')
             if plot_button:
                 g = sns.catplot(x=hist_val, y='Survived', data=full_data, kind='bar', ci=None)
                 g = g.set_ylabels("survival probability")
-                # g = sns.factorplot(data = full_data, x = hist_val, y = 'Survived', kind = 'bar',  ci=None)
                 st.pyplot(g)
         # コードの表示
         code = st.sidebar.checkbox('コードを表示')
@@ -274,6 +251,7 @@ def vis():
     # 棒グラフ: Hue あり
     elif graph == "棒グラフ(男女別)":
         logging.info(',%s,データ可視化,%s', st.session_state.username, graph)
+        # Genderを抜いたラベル
         label = ['Pclass', 'Age', 'SibSp', 'Parch', 'Fare', 'Embarked']
         st.markdown('## 生存率 × 他の変数')
         st.write('性別ごとの分類あり')
@@ -298,7 +276,6 @@ def vis():
     # 分布
     elif graph == "分布":
         logging.info(',%s,データ可視化,%s', st.session_state.username, graph)
-        label = ['Pclass', 'Age', 'SibSp', 'Parch', 'Fare', 'Embarked']
         st.markdown('## 生存率 × 他の変数')
 
         with st.form("分布"):
@@ -322,34 +299,9 @@ def vis():
             st.sidebar.write(code_txt)
             st.sidebar.markdown('---')
     
-    # 箱ひげ図
-    elif graph == '箱ひげ図':
-        logging.info(',%s,データ可視化,%s', st.session_state.username, graph)
-        st.markdown('## 箱ひげ図 で 分布 を調べる')
-        with st.form("箱ひげ図"):
-            # 変数選択
-            box_val_y = st.selectbox('箱ひげ図にする変数を選択',label)
-            logging.info(',%s,箱ひげ図,%s', st.session_state.username, box_val_y)
-
-
-            # Submitボタン
-            plot_button = st.form_submit_button('グラフ表示')
-            if plot_button:
-                # 箱ひげ図の表示
-                g = sns.catplot(x='Survived', y=box_val_y, data=full_data, kind='box')
-                st.pyplot(g)
-                # コードの表示
-        code = st.sidebar.checkbox('コードを表示')
-        if code:
-            code_txt = "g = sns.catplot(x='Survived', y='" + box_val_y + "', data=full_data, kind='box')"
-            st.sidebar.markdown('---')
-            st.sidebar.markdown(code_txt)
-            st.sidebar.markdown('---')
-    
     # 散布図
     elif graph == '散布図':
         logging.info(',%s,データ可視化,%s', st.session_state.username, graph)
-        label = full_data.columns
         st.markdown('## 散布図 で 分布 を調べる')
         with st.form("散布図"):
             left, right = st.beta_columns(2)
@@ -360,15 +312,12 @@ def vis():
             with right:
                 y_label = st.selectbox('縦軸を選択',label)
             
-            logging.info(',%s,散布図,%s', st.session_state.username, x_label+'_'+y_label)
-            
+            logging.info(',%s,散布図,%s', st.session_state.username, x_label+'_'+ y_label)
         
             # Submitボタン
             plot_button = st.form_submit_button('グラフ表示')
             if plot_button:
                 # 散布図表示
-                # fig = px.scatter(full_data,x=x_label,y=y_label)
-                # st.plotly_chart(fig, use_container_width=True)
                 g = sns.catplot(x=x_label, y=y_label, data=full_data, kind = 'swarm')
                 st.pyplot(g)
 
@@ -383,7 +332,6 @@ def vis():
     # 散布図行列
     if graph == '全ての散布図':
         logging.info(',%s,データ可視化,%s', st.session_state.username, graph)
-        label = full_data.columns
 
         st.markdown('## 全ての変数 を 散布図 に表示する')
         st.markdown('このグラフの見方は、ページの一番下にある「グラフの見方」ボタン参照')
