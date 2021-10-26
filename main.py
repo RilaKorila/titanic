@@ -221,7 +221,7 @@ def vis():
     # sidebar でグラフを選択
     graph = st.sidebar.radio(
         'グラフの種類',
-        ('棒グラフ', '棒グラフ(男女別)', '分布', '散布図', '全ての散布図')
+        ('棒グラフ', '棒グラフ(男女別)', 'ヒストグラム(曲線)', '散布図', '全ての散布図')
     )
 
     # 棒グラフ
@@ -272,15 +272,15 @@ def vis():
             st.sidebar.write(code_txt)
             st.sidebar.markdown('---')
 
-    # 分布
-    elif graph == "分布":
+    # ヒストグラム(曲線)
+    elif graph == "ヒストグラム(曲線)":
         logging.info(',%s,データ可視化,%s', st.session_state.username, graph)
         st.markdown('## 生存率 × 他の変数')
 
-        with st.form("分布"):
+        with st.form("ヒストグラム(曲線)"):
             # 変数選択
             hist_val = st.selectbox('変数を選択',label)
-            logging.info(',%s,分布,%s', st.session_state.username, hist_val)
+            logging.info(',%s,ヒストグラム(曲線),%s', st.session_state.username, hist_val)
 
             # Submitボタン
             plot_button = st.form_submit_button('グラフ表示')
