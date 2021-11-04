@@ -8,6 +8,8 @@ import plotly.express as px
 
 ALIVE = 1
 DEAD = 0
+FEMALE = 0
+MALE = 1
 
 st.set_page_config(
     page_title="Titanic Analysis App",
@@ -165,9 +167,16 @@ def vis():
                 # kde: 縦軸が割合(該当者 / 全体)
                 # hist: 人数
                 if hue == "性別":
-                    g = sns.displot(data=full_data, x=hist_val, hue="Gender",fill = True, kind="kde")
+                    g = sns.displot(data=full_data, x=hist_val, hue="Gender",fill = True, kind="kde",  palette='seismic', legend=False)
+                    plt.legend(labels=["female","male"])
                 else:
-                    g = sns.displot(data=full_data, x=hist_val, hue="Survived",fill = True, kind="kde")
+                    tmp = full_data.copy() # ただ=で複製すると参照渡し → full_dataも値が書き変わる
+                    tmp.Survived.replace(DEAD, "dead", inplace=True)
+                    tmp.Survived.replace(ALIVE, "alive", inplace=True)
+
+                    tmp.Survived.replace(FEMALE, "female", inplace=True)
+                    tmp.Survived.replace(MALE, "male", inplace=True)
+                    g = sns.displot(data=tmp, x=hist_val, hue="Survived",fill = True, kind="kde",  palette='seismic')
 
                 g.set_axis_labels(hist_val, "survival probability")
                 st.pyplot(g)
@@ -175,7 +184,7 @@ def vis():
         # コードの表示
         code = st.sidebar.checkbox('コードを表示')
         if code:
-            code_txt = "g = sns.displot(data=full_data, x='" + hist_val + "', hue='Survived',fill = True, kind='kde')"
+            code_txt = "g = sns.displot(data=full_data, x='" + hist_val + "', hue='Survived',fill = True, kind='kde',  palette='seismic')"
             st.sidebar.markdown('---')
             st.sidebar.write(code_txt)
             st.sidebar.markdown('---')
@@ -234,7 +243,7 @@ def vis():
         # コードの表示
         code = st.sidebar.checkbox('コードを表示')
         if code:
-            code_txt = "g = sns.pairplot(full_data, hue='Survived')"
+            code_txt = "g = sns.pairplot(full_data, hue='Survived', palette='seismic')"
             st.sidebar.markdown('---')
             st.sidebar.write(code_txt)
             st.sidebar.markdown('---')
