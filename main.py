@@ -3,8 +3,10 @@ import pandas as pd
 import logging
 import seaborn as sns
 import data
+import matplotlib.pyplot as plt
+import plotly.express as px
 
-LIVE = 1
+ALIVE = 1
 DEAD = 0
 
 st.set_page_config(
@@ -196,10 +198,16 @@ def vis():
         
             # Submitボタン
             plot_button = st.form_submit_button('グラフ表示')
+            tmp = full_data.copy() # ただ=で複製すると参照渡し → full_dataも値が書き変わる
+            tmp.Survived.replace(DEAD, "dead", inplace=True)
+            tmp.Survived.replace(ALIVE, "alive", inplace=True)
+
             if plot_button:
                 # 散布図表示
-                g = sns.catplot(x=x_label, y=y_label, data=full_data, kind = 'swarm')
-                st.pyplot(g)
+                fig = px.scatter(data_frame=tmp, x=x_label, y=y_label, color="Survived")
+                st.plotly_chart(fig, use_container_width=True)
+                # g = sns.catplot(x=x_label, y=y_label, data=full_data, kind = 'strip')
+                # st.pyplot(g)
 
         # コードの表示
         code = st.sidebar.checkbox('コードを表示')
@@ -216,15 +224,8 @@ def vis():
         st.markdown('## 全ての変数 を 散布図 に表示する')
         st.markdown('このグラフの見方は、ページの一番下にある「グラフの見方」ボタン参照')
 
-        with st.form("散布図行列"):
-            # Submitボタン
-            plot_button = st.form_submit_button('グラフ表示')
-            if plot_button:
-                # sns.pairplot(full_data, hue='Survived').savefig('./all_pairplot.png')
-                # st.pyplot(g)
-                # 処理時間が長すぎるので画像を表示
-                st.image(data.my_pairplot())
-            
+        st.image(data.my_pairplot())
+        
         # 散布図行列の見方を表示
         reference_btn = st.button('グラフの見方')
         if reference_btn:
