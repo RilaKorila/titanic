@@ -14,3 +14,8 @@ def my_pairplot():
     image = Image.open('./all_pairplot.png')
     
     return image
+
+def how_to_check():
+    image = Image.open('./HowToCheck.png')
+    
+    return image

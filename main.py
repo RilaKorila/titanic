@@ -217,14 +217,14 @@ def vis():
         logging.info(',%s,データ可視化,%s', st.session_state.username, graph)
 
         st.markdown('## 全ての変数 を 散布図 に表示する')
-        st.markdown('このグラフの見方は、ページの一番下にある「グラフの見方」ボタン参照')
+        st.markdown('このグラフの見方は、ページ一番下の「グラフの見方」ボタン参照')
 
         st.image(data.my_pairplot())
         
         # 散布図行列の見方を表示
         reference_btn = st.button('グラフの見方')
         if reference_btn:
-            st.markdown('ここにスライドの画像を表示')
+            st.image(data.how_to_check())
 
         # コードの表示
         code = st.sidebar.checkbox('コードを表示')
