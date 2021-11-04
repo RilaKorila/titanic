@@ -3,7 +3,6 @@ import pandas as pd
 import logging
 import seaborn as sns
 import data
-import matplotlib.pyplot as plt
 import plotly.express as px
 
 ALIVE = 1
