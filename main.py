@@ -151,32 +151,18 @@ def vis():
         st.markdown('## データの分布を見てみよう')
 
         with st.form("ヒストグラム(曲線)"):
-            left, right = st.beta_columns(2)
-
-            with left: # 変数選択 
-                hist_val = st.selectbox('変数を選択',label)
-                logging.info(',%s,ヒストグラム(曲線),%s', st.session_state.username, hist_val)
-
-            with right: # 縦軸のタイプを選択
-                hue = st.radio("色分け", ("性別", "生死"))
+            hist_val = st.selectbox('変数を選択',label)
+            logging.info(',%s,ヒストグラム(曲線),%s', st.session_state.username, hist_val)
 
             # Submitボタン
             plot_button = st.form_submit_button('グラフ表示')
             
             if plot_button:
-                # kde: 縦軸が割合(該当者 / 全体)
-                # hist: 人数
-                if hue == "性別":
-                    g = sns.displot(data=full_data, x=hist_val, hue="Gender",fill = True, kind="kde",  palette='seismic', legend=False)
-                    plt.legend(labels=["female","male"])
-                else:
-                    tmp = full_data.copy() # ただ=で複製すると参照渡し → full_dataも値が書き変わる
-                    tmp.Survived.replace(DEAD, "dead", inplace=True)
-                    tmp.Survived.replace(ALIVE, "alive", inplace=True)
+                tmp = full_data.copy() # ただ=で複製すると参照渡し → full_dataも値が書き変わる
+                tmp.Survived.replace(DEAD, "dead", inplace=True)
+                tmp.Survived.replace(ALIVE, "alive", inplace=True)
 
-                    tmp.Survived.replace(FEMALE, "female", inplace=True)
-                    tmp.Survived.replace(MALE, "male", inplace=True)
-                    g = sns.displot(data=tmp, x=hist_val, hue="Survived",fill = True, kind="kde",  palette='seismic')
+                g = sns.displot(data=tmp, x=hist_val, hue="Survived",fill = True, kind="kde",  palette='seismic')
 
                 g.set_axis_labels(hist_val, "survival probability")
                 st.pyplot(g)
