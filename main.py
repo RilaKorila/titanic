@@ -117,7 +117,6 @@ def vis():
 
     feature_data = load_num_data()
     full_data = load_full_data()
-    label = feature_data.columns
 
     st.sidebar.markdown('## 様々なグラフを試してみよう')
 
@@ -126,40 +125,6 @@ def vis():
         'グラフの種類',
         ('ヒストグラム', '散布図', '全ての散布図')
     )
-
-    # 棒グラフ
-    # if graph == "棒グラフ":
-    #     logging.info(',%s,データ可視化,%s', st.session_state.username, graph)
-    #     st.markdown('## 生存率 × 他の変数')
-    #     st.markdown('**生存した人**に注目。それぞれの変数で、生存した人の分布を示す。')
-
-    #     with st.form("棒グラフ"):
-    #         # 変数選択
-    #         hist_val = st.selectbox('変数を選択',val_names)
-    #         hist_val = data.get_val(hist_val)
-
-    #         logging.info(',%s,棒グラフ,%s', st.session_state.username, hist_val)
-
-    #         # Submitボタン
-    #         plot_button = st.form_submit_button('グラフ表示')
-    #         if plot_button:
-    #             if hist_val == "Fare":
-    #                 g = px.histogram(full_data, x=hist_val, nbins=100)
-    #                 st.plotly_chart(g)
-    #             elif hist_val == "Age":
-    #                 g = px.histogram(full_data, x=hist_val, nbins=5)
-    #                 st.plotly_chart(g)
-    #             else:
-    #                 g = sns.catplot(x=hist_val, y='Survived', data=full_data, kind='bar', ci=None)
-    #                 g = g.set_ylabels("survival probability", nbins=5)
-    #                 st.pyplot(g)
-    #     # コードの表示
-    #     code = st.sidebar.checkbox('コードを表示')
-    #     if code:
-    #         code_txt = "g = sns.catplot(x='" + hist_val + "', y='Survived', kind='bar', data=full_data, ci=None)"
-    #         st.sidebar.markdown('---')
-    #         st.sidebar.write(code_txt)
-    #         st.sidebar.markdown('---')
 
     # ヒストグラム
     if graph == "ヒストグラム":
@@ -201,13 +166,11 @@ def vis():
         logging.info(',%s,データ可視化,%s', st.session_state.username, graph)
         st.markdown('## 散布図 で 分布 を調べる')
         with st.form("散布図"):
-            # (Todo) バージョンアップ: 今betaじゃないはず
-            left, right = st.beta_columns(2)
+            left, right = st.columns(2)
 
             with left: # 変数選択 
                 x_label = st.selectbox('横軸を選択',val_names)
                 x_label = data.get_val(x_label)
-
 
             with right:
                 y_label = st.selectbox('縦軸を選択',val_names)
@@ -225,8 +188,6 @@ def vis():
                 # 散布図表示
                 fig = px.scatter(data_frame=tmp, x=x_label, y=y_label, color="Survived")
                 st.plotly_chart(fig, use_container_width=True)
-                # g = sns.catplot(x=x_label, y=y_label, data=full_data, kind = 'strip')
-                # st.pyplot(g)
 
         # コードの表示
         code = st.sidebar.checkbox('コードを表示')
