@@ -4,7 +4,6 @@ import logging
 import seaborn as sns
 import data
 import plotly.express as px
-import plotly.graph_objs as go
 
 ALIVE = 1
 DEAD = 0
@@ -166,7 +165,7 @@ def vis():
     if graph == "ヒストグラム":
         logging.info(',%s,データ可視化,%s', st.session_state.username, graph)
         st.markdown('## データの分布を見てみよう')
-        st.markdown('赤は生存者の分布、青は死亡者の分布を示す。それぞれ**山の頂点**がどこにあるのかに注目すると良い。')
+        st.markdown('赤は生存者の分布、青は死亡者の分布を示す。')
 
 
         with st.form("ヒストグラム"):
@@ -178,37 +177,21 @@ def vis():
             plot_button = st.form_submit_button('グラフ表示')
             
             if plot_button:
-                # tmp = full_data.copy() # ただ=で複製すると参照渡し → full_dataも値が書き変わる
-                # tmp.Survived.replace(DEAD, "dead", inplace=True)
-                # tmp.Survived.replace(ALIVE, "alive", inplace=True)
-
-                # # g = sns.displot(data=tmp, x=hist_val, hue="Survived",fill = True, kind="kde",  palette='seismic')
-                # g = px.histogram(tmp, x=hist_val)
-
-                # # g.set_axis_labels(hist_val, "")
-                # # st.pyplot(g)
-                # st.plotly_chart(g)
                 if hist_val == "Fare":
-                    print("Fare")
                     g = px.histogram(full_data, x=hist_val, nbins=20, color='Survived', barmode='group')
                     st.plotly_chart(g)
                 elif hist_val == "Age":
-                    print("Age")
-
                     g = px.histogram(full_data, x=hist_val, nbins=20,color='Survived', barmode='group')
                     st.plotly_chart(g)
                 else:
-                    print("else")
-
                     g = sns.catplot(x=hist_val, y='Survived', data=full_data, kind='bar', ci=None)
-                    # g = g.set_ylabels("survival probability")
                     g = px.histogram(full_data, x=hist_val, color='Survived', barmode='group')
                     st.plotly_chart(g)
 
         # コードの表示
         code = st.sidebar.checkbox('コードを表示')
         if code:
-            code_txt = "g = sns.displot(data=full_data, x='" + hist_val + "', hue='Survived',fill = True, kind='kde',  palette='seismic')"
+            code_txt = "px.histogram(full_data, x=" + hist_val + ", nbins=20, color='Survived', barmode='group')"
             st.sidebar.markdown('---')
             st.sidebar.write(code_txt)
             st.sidebar.markdown('---')
