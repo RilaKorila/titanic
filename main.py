@@ -181,7 +181,7 @@ def vis():
                     g = px.histogram(full_data, x=hist_val, nbins=20, color='Survived', barmode='group')
                     st.plotly_chart(g)
                 elif hist_val == "Age":
-                    g = px.histogram(full_data, x=hist_val, nbins=20,color='Survived', barmode='group')
+                    g = px.histogram(full_data, x=hist_val, nbins=10,color='Survived', barmode='group')
                     st.plotly_chart(g)
                 else:
                     g = sns.catplot(x=hist_val, y='Survived', data=full_data, kind='bar', ci=None)
