@@ -63,7 +63,6 @@ def main():
     if 'page' not in st.session_state:
         st.session_state.page = 'input_name' # usernameつける時こっち
 
-
     # --- page選択ラジオボタン
     st.sidebar.markdown('## ページを選択')
     page = st.sidebar.radio('', ('データ表示', 'グラフを表示'))
@@ -85,7 +84,6 @@ def main():
 def input_name():
     # Input username
     with st.form("my_form"):
-        st.text("メールアドレス b〇〇〇〇〇〇@seig-boys.jp に含まれている番号(学籍番号)を入力")
         inputname = st.text_input('学籍番号', 'ここに学籍番号を入力')
         submitted = st.form_submit_button("Go!!")
         if submitted: # Submit buttonn 押された時に
