@@ -52,14 +52,19 @@ def load_ML_data(feature1, feature2, train_num = 600):
 
 
 def main():
+
+    # ログをとるときのみコメントを外す
     # If username is already initialized, don't do anything
-    if 'username' not in st.session_state or st.session_state.username == 'default':
-        st.session_state.username = 'default'
-        input_name()
-        st.stop()
-    if 'username' not in st.session_state:
-        st.session_state.username = 'test'
-            
+    # if 'username' not in st.session_state or st.session_state.username == 'default':
+    #     st.session_state.username = 'default'
+    #     input_name()
+    #     st.stop()
+    # if 'username' not in st.session_state:
+    #     st.session_state.username = 'test'
+
+    # 個別のログをとるときはinputを受け取るので以下は不要
+    st.session_state.username = 'test'   
+
     if 'page' not in st.session_state:
         st.session_state.page = 'input_name' # usernameつける時こっち
 
