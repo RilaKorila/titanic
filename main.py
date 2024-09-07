@@ -25,19 +25,19 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s,%(message)s")
 
 DATA_SOURCE = './data/titanic.csv'
 
-@st.cache
+@st.cache_data
 def load_full_data():
     data = pd.read_csv(DATA_SOURCE)
     return data
 
-@st.cache 
+@st.cache_data 
 def load_num_data():
     data = pd.read_csv(DATA_SOURCE)
     rows = ['Survived']
     data = data.drop(rows, axis=1)
     return data
 
-@st.cache
+@st.cache_data
 def load_ML_data(feature1, feature2, train_num = 600):
     df = load_full_data()
     X = df[[feature1, feature2]]
